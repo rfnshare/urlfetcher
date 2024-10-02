@@ -120,6 +120,7 @@ def download_links():
     buffer.write(text_file_content.encode('utf-8'))
     buffer.seek(0)
 
+
     # Send the file for download
     return send_file(
         buffer,
