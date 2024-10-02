@@ -8,6 +8,7 @@ from io import BytesIO
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+
 # Function to fetch valid links
 def fetch_valid_links_from_table(url):
     # Create a session to maintain login state
@@ -22,11 +23,12 @@ def fetch_valid_links_from_table(url):
         print(f"Error fetching the URL: {e}")
         return [], str(e)  # Return empty links and the error message
 
-    # Parse the content using BeautifulSoup
+        # Parse the content using BeautifulSoup
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # Updated regex pattern to match various file types
-    file_pattern = re.compile(r'.*\.(mkv|mp4|avi|pdf|txt|zip|rar|doc|docx|ppt|pptx|xls|xlsx|jpg|jpeg|png|gif|csv|json|xml)$')
+    file_pattern = re.compile(
+        r'.*\.(mkv|mp4|avi|pdf|txt|zip|rar|doc|docx|ppt|pptx|xls|xlsx|jpg|jpeg|png|gif|csv|json|xml)$')
 
     links = []
 
@@ -40,11 +42,11 @@ def fetch_valid_links_from_table(url):
     return links, None  # Return the found links and None for no error
 
 
-
 # Route to render the UI
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -59,6 +61,9 @@ def login():
         'remember': 'on',
         'loginsubmit': ''
     })
+    if "row profile" in response.text:
+        flash('Clear All Sessions From Profile', 'danger')
+        return redirect(url_for('index'))
 
     if response.ok:
         # Parse the response to check for error messages
@@ -72,10 +77,13 @@ def login():
         # If there's no error, login is successful
         session['login_session'] = s.cookies.get_dict()  # Store session cookies
         flash('Login successful!', 'success')
+
         return redirect(url_for('index'))  # Redirect to home after successful login
     else:
         flash('Login failed: Unknown error', 'error')  # Handle unexpected errors
         return redirect(url_for('index'))
+
+
 @app.route('/fetch-links', methods=['GET', 'POST'])
 def fetch_links():
     if request.method == 'POST':
@@ -93,7 +101,6 @@ def fetch_links():
 
     # For GET requests, clear the links and prefix to prevent showing old data
     return render_template('index.html', links=[], prefix='')
-
 
 
 # Route to download links as a text file
