@@ -127,7 +127,3 @@ def download_links():
         download_name="downloaded_links.txt",
         mimetype="text/plain"
     )
-
-
-if __name__ == '__main__':
-    app.run()
