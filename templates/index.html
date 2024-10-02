@@ -9,6 +9,7 @@
         body {
             background-color: #f8f9fa;
             padding-top: 50px;
+            position: relative;
         }
 
         .title {
@@ -25,6 +26,15 @@
             white-space: normal; /* Allows normal wrapping of the text */
         }
 
+        .session-status {
+            position: absolute;
+            top: 20px; /* Adjust as needed */
+            right: 20px; /* Adjust as needed */
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
     </style>
 </head>
 <body>
@@ -33,19 +43,57 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <h1 class="title">Fetch Download Links</h1>
+            <!-- Display Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="alert alert-dismissible fade show mt-3" role="alert">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            {% endwith %}
+            <!-- Display session status -->
+            <div class="session-status {% if session.get('login_session') %}bg-success{% else %}bg-danger{% endif %}"></div>
+<!--            <span class="ml-2" style="vertical-align: top;">-->
+<!--            {% if session.get('login_session') %}-->
+<!--                <span class="text-success">Dflix session active</span>-->
+<!--            {% else %}-->
+<!--                <span class="text-danger">No active session</span>-->
+<!--            {% endif %}-->
+        </span>
             <div class="card p-4">
-                <form method="POST" action="/fetch-links">
-                    <div class="mb-3">
-                        <label for="serverUrl" class="form-label">Enter Server URL</label>
-                        <input type="text" class="form-control" id="serverUrl" name="url"
-                               placeholder="Enter the URL here..." required>
+                <form action="/fetch-links" method="POST">
+                    <div class="form-group">
+                        <label for="webpageUrl">Webpage URL</label>
+                        <input type="text" class="form-control" id="webpageUrl" name="url"
+                               placeholder="Enter the webpage URL" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="prefixUrl" class="form-label">Prefix URL (Optional)</label>
+                    <div class="form-group">
+                        <label for="prefixUrl">Prefix URL (optional)</label>
                         <input type="text" class="form-control" id="prefixUrl" name="prefix"
-                               placeholder="e.g., http://server4.ftpbd.net">
+                               placeholder="Enter prefix URL">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Fetch Download Links</button>
+
+                    <div class="form-group">
+                        <label for="useLogin">Do you want to log in?</label>
+                        <input type="checkbox" id="useLogin" name="use_login" value="yes">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Fetch Links</button>
+                </form>
+                <form action="/login" method="POST">
+                    <div class="form-group" id="loginFields" style="display: none;">
+
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               placeholder="Enter username">
+
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Enter password">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
                 </form>
             </div>
             <div id="result" class="result-box">
@@ -75,6 +123,18 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    document.getElementById('useLogin').addEventListener('change', function () {
+        const loginFields = document.getElementById('loginFields');
+        if (this.checked) {
+            loginFields.style.display = 'block';
+        } else {
+            loginFields.style.display = 'none';
+        }
+    });
+</script>
 
 </body>
 </html>
